@@ -346,7 +346,6 @@ These examples cover frequently used MongoDB commands for managing databases, co
 
 In MongoDB, commands are categorized similarly to SQL in terms of **DML (Data Manipulation Language)**, **DQL (Data Query Language)**, **DCL (Data Control Language)**, and **TCL (Transaction Control Language)**. Below is a breakdown of these categories with corresponding MongoDB commands:
 
----
 
 ## **1. DML (Data Manipulation Language)**
 
@@ -530,7 +529,7 @@ In MongoDB, **aggregate functions** are used in the **aggregation framework** to
 
 ### Common Aggregate Functions in MongoDB:
 
----
+
 
 ### 1. **$sum**
 - Calculates the sum of numeric values.
@@ -543,7 +542,6 @@ db.sales.aggregate([
 ])
 ```
 
----
 
 ### 2. **$avg**
 - Computes the average of numeric values.
@@ -557,7 +555,6 @@ db.employees.aggregate([
 ])
 ```
 
----
 
 ### 3. **$min**
 - Returns the minimum value from a set of values.
@@ -570,7 +567,6 @@ db.products.aggregate([
 ])
 ```
 
----
 
 ### 4. **$max**
 - Returns the maximum value from a set of values.
@@ -583,7 +579,6 @@ db.products.aggregate([
 ])
 ```
 
----
 
 ### 5. **$count**
 - Counts the number of documents that match the query.
