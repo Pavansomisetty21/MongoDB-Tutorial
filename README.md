@@ -951,7 +951,7 @@ db.orders.aggregate([
     }
   },
   { $unwind: "$productDetails" }  //
-
+```
 
 
 In MongoDB, **views** are a way to create a **virtual collection** that does not store any data itself but provides a way to query data from other collections. Views allow you to define a dynamic query or transformation that MongoDB executes when the view is accessed. This can be useful for abstracting complex aggregation queries or for exposing a subset of data to applications with read-only access.
