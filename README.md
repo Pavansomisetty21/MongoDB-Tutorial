@@ -527,7 +527,7 @@ try {
 
 In MongoDB, **aggregate functions** are used in the **aggregation framework** to perform operations like grouping, filtering, sorting, and transforming data. MongoDB’s aggregation pipeline allows you to process and analyze documents in a collection, similar to SQL’s aggregate functions but with more flexibility.
 
-### Common Aggregate Functions in MongoDB:
+## Common Aggregate Functions in MongoDB:
 
 MongoDB's **aggregation framework** is a powerful tool for performing data transformations and computations in the database. It works by processing data through a **pipeline** of stages, where each stage performs an operation on the input data and passes the result to the next stage. The most common aggregation symbols, also known as **operators**, include mathematical, logical, array manipulation, and string operators.
 
