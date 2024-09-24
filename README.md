@@ -842,6 +842,149 @@ This pipeline:
 5. Performs a join (using `$lookup`) to get customer details from the `customers` collection.
 6. Projects the output to include the total and customer details.
 
+
+
+
+
+
+
+
+
+#### Some more fuctions are
+In MongoDB, there are several query operators similar to `$gt` (greater than), used for various purposes like comparison, logical, and evaluation. Here’s a list of some of the most commonly used query operators:
+
+### **Comparison Operators**
+
+1. **$gt**: Greater than
+   - Matches values that are greater than the specified value.
+   ```javascript
+   db.collection.find({ age: { $gt: 30 } })
+   ```
+
+2. **$gte**: Greater than or equal to
+   - Matches values that are greater than or equal to the specified value.
+   ```javascript
+   db.collection.find({ age: { $gte: 30 } })
+   ```
+
+3. **$lt**: Less than
+   - Matches values that are less than the specified value.
+   ```javascript
+   db.collection.find({ age: { $lt: 30 } })
+   ```
+
+4. **$lte**: Less than or equal to
+   - Matches values that are less than or equal to the specified value.
+   ```javascript
+   db.collection.find({ age: { $lte: 30 } })
+   ```
+
+5. **$eq**: Equal to
+   - Matches values that are equal to the specified value.
+   ```javascript
+   db.collection.find({ age: { $eq: 30 } })
+   ```
+
+6. **$ne**: Not equal to
+   - Matches values that are not equal to the specified value.
+   ```javascript
+   db.collection.find({ age: { $ne: 30 } })
+   ```
+
+7. **$in**: Matches any of the values specified in an array.
+   ```javascript
+   db.collection.find({ age: { $in: [25, 30, 35] } })
+   ```
+
+8. **$nin**: Matches none of the values specified in an array.
+   ```javascript
+   db.collection.find({ age: { $nin: [25, 30, 35] } })
+   ```
+
+### **Logical Operators**
+
+1. **$and**: Joins query clauses with a logical AND.
+   ```javascript
+   db.collection.find({ $and: [{ age: { $gt: 25 } }, { age: { $lt: 35 } }] })
+   ```
+
+2. **$or**: Joins query clauses with a logical OR.
+   ```javascript
+   db.collection.find({ $or: [{ age: { $lt: 25 } }, { age: { $gt: 35 } }] })
+   ```
+
+3. **$not**: Inverts the effect of a query expression.
+   ```javascript
+   db.collection.find({ age: { $not: { $gt: 30 } } })
+   ```
+
+4. **$nor**: Joins query clauses with a logical NOR.
+   ```javascript
+   db.collection.find({ $nor: [{ age: { $gt: 30 } }, { name: "John" }] })
+   ```
+
+### **Element Operators**
+
+1. **$exists**: Matches documents that have the specified field.
+   ```javascript
+   db.collection.find({ age: { $exists: true } })
+   ```
+
+2. **$type**: Selects documents if a field is of the specified type.
+   ```javascript
+   db.collection.find({ age: { $type: "int" } })
+   ```
+
+### **Array Operators**
+
+1. **$all**: Matches arrays that contain all elements specified in the query.
+   ```javascript
+   db.collection.find({ tags: { $all: ["mongodb", "database"] } })
+   ```
+
+2. **$elemMatch**: Matches documents that contain an array field with at least one element that matches all the specified criteria.
+   ```javascript
+   db.collection.find({ scores: { $elemMatch: { score: { $gt: 80, $lt: 90 } } } })
+   ```
+
+3. **$size**: Matches any array with the specified number of elements.
+   ```javascript
+   db.collection.find({ tags: { $size: 3 } })
+   ```
+
+### **Evaluation Operators**
+
+1. **$regex**: Performs regular expression searches.
+   ```javascript
+   db.collection.find({ name: { $regex: /^John/ } })
+   ```
+
+2. **$mod**: Performs a modulo operation and matches documents where the field value is a multiple of the divisor.
+   ```javascript
+   db.collection.find({ age: { $mod: [10, 0] } }) // age is a multiple of 10
+   ```
+
+### **Other Operators**
+
+1. **$text**: Performs text search.
+   ```javascript
+   db.collection.find({ $text: { $search: "mongodb" } })
+   ```
+
+2. **$where**: Matches documents that satisfy a JavaScript expression.
+   ```javascript
+   db.collection.find({ $where: "this.age > 30" })
+   ```
+
+3. **$expr**: Allows the use of aggregation expressions in query filters.
+   ```javascript
+   db.collection.find({ $expr: { $gt: ["$age", 30] } })
+   ```
+
+---
+
+These operators provide a wide range of functionalities in MongoDB to match and filter documents based on various criteria.
+
 ### Conclusion
 
 MongoDB's aggregation framework provides extensive capabilities for data transformation, computation, and analysis. It allows you to run complex queries on large datasets efficiently using these operators and stages.
