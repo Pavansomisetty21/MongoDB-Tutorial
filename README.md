@@ -529,209 +529,322 @@ In MongoDB, **aggregate functions** are used in the **aggregation framework** to
 
 ### Common Aggregate Functions in MongoDB:
 
+MongoDB's **aggregation framework** is a powerful tool for performing data transformations and computations in the database. It works by processing data through a **pipeline** of stages, where each stage performs an operation on the input data and passes the result to the next stage. The most common aggregation symbols, also known as **operators**, include mathematical, logical, array manipulation, and string operators.
 
+### Key Aggregate Operators in MongoDB
 
-### 1. **$sum**
-- Calculates the sum of numeric values.
-  
-#### Example:
-To calculate the total quantity of items sold:
+#### 1. **$match**
+Filters documents to pass only the ones that match the specified condition.
+
+```javascript
+db.orders.aggregate([
+  { $match: { status: "shipped" } }
+]);
+```
+
+#### 2. **$group**
+Groups documents by a specified field and can calculate aggregates for each group, such as counts, sums, averages, etc.
+
+```javascript
+db.orders.aggregate([
+  { $group: { _id: "$customerId", total: { $sum: "$amount" } } }
+]);
+```
+
+#### 3. **$project**
+Reshapes documents by including, excluding, or computing new fields. It's used to control the output structure.
+
+```javascript
+db.orders.aggregate([
+  { $project: { item: 1, quantity: 1, total: { $multiply: ["$price", "$quantity"] } } }
+]);
+```
+
+#### 4. **$sort**
+Sorts documents in ascending or descending order.
+
+```javascript
+db.orders.aggregate([
+  { $sort: { date: -1 } }  // -1 for descending, 1 for ascending
+]);
+```
+
+#### 5. **$limit**
+Limits the number of documents passed to the next stage.
+
+```javascript
+db.orders.aggregate([
+  { $limit: 5 }
+]);
+```
+
+#### 6. **$skip**
+Skips a specified number of documents.
+
+```javascript
+db.orders.aggregate([
+  { $skip: 10 }
+]);
+```
+
+#### 7. **$lookup** (Join)
+Performs a left outer join to another collection in the same database to combine documents.
+
+```javascript
+db.orders.aggregate([
+  {
+    $lookup: {
+      from: "customers",    // the foreign collection
+      localField: "customerId",  // the field in the current collection
+      foreignField: "_id",   // the field in the foreign collection
+      as: "customerDetails"  // name of the output array
+    }
+  }
+]);
+```
+
+#### 8. **$unwind**
+Deconstructs an array field from the input documents to output a document for each element of the array.
+
+```javascript
+db.orders.aggregate([
+  { $unwind: "$items" }
+]);
+```
+
+#### 9. **$addFields**
+Adds new fields to documents or modifies existing fields.
+
+```javascript
+db.orders.aggregate([
+  { $addFields: { totalCost: { $multiply: ["$price", "$quantity"] } } }
+]);
+```
+
+#### 10. **$set**
+An alias for `$addFields`. Used for adding or updating fields.
+
+```javascript
+db.orders.aggregate([
+  { $set: { discountedPrice: { $multiply: ["$price", 0.9] } } }
+]);
+```
+
+#### 11. **$bucket**
+Categorizes incoming documents into groups, called buckets, based on a specified expression and boundary values.
+
 ```javascript
 db.sales.aggregate([
-  { $group: { _id: null, totalQuantity: { $sum: "$quantity" } } }
-])
+  {
+    $bucket: {
+      groupBy: "$price",
+      boundaries: [0, 100, 200, 300],
+      default: "Other",
+      output: { "count": { $sum: 1 }, "totalSales": { $sum: "$amount" } }
+    }
+  }
+]);
 ```
 
+#### 12. **$bucketAuto**
+Similar to `$bucket`, but automatically calculates boundaries for the specified number of buckets.
 
-### 2. **$avg**
-- Computes the average of numeric values.
-
-#### Example:
-To calculate the average salary of employees in the "Engineering" department:
-```javascript
-db.employees.aggregate([
-  { $match: { department: "Engineering" } },
-  { $group: { _id: null, avgSalary: { $avg: "$salary" } } }
-])
-```
-
-
-### 3. **$min**
-- Returns the minimum value from a set of values.
-
-#### Example:
-To find the minimum price of a product:
-```javascript
-db.products.aggregate([
-  { $group: { _id: null, minPrice: { $min: "$price" } } }
-])
-```
-
-
-### 4. **$max**
-- Returns the maximum value from a set of values.
-
-#### Example:
-To find the maximum price of a product:
-```javascript
-db.products.aggregate([
-  { $group: { _id: null, maxPrice: { $max: "$price" } } }
-])
-```
-
-
-### 5. **$count**
-- Counts the number of documents that match the query.
-
-#### Example:
-To count the number of employees in the "HR" department:
-```javascript
-db.employees.aggregate([
-  { $match: { department: "HR" } },
-  { $count: "totalEmployees" }
-])
-```
-
----
-
-### 6. **$push**
-- Appends values to an array in the result.
-
-#### Example:
-To group orders by customer and list all order IDs for each customer:
-```javascript
-db.orders.aggregate([
-  { $group: { _id: "$customerId", orders: { $push: "$orderId" } } }
-])
-```
-
----
-
-### 7. **$addToSet**
-- Adds unique values to an array in the result.
-
-#### Example:
-To group products by category and get a list of unique product names in each category:
-```javascript
-db.products.aggregate([
-  { $group: { _id: "$category", uniqueProducts: { $addToSet: "$productName" } } }
-])
-```
-
----
-
-### 8. **$first**
-- Returns the first document in the group.
-
-#### Example:
-To get the first order made by each customer:
-```javascript
-db.orders.aggregate([
-  { $sort: { orderDate: 1 } },  // Sort by order date
-  { $group: { _id: "$customerId", firstOrder: { $first: "$orderId" } } }
-])
-```
-
----
-
-### 9. **$last**
-- Returns the last document in the group.
-
-#### Example:
-To get the last order made by each customer:
-```javascript
-db.orders.aggregate([
-  { $sort: { orderDate: 1 } },
-  { $group: { _id: "$customerId", lastOrder: { $last: "$orderId" } } }
-])
-```
-
----
-
-### 10. **$stdDevPop**
-- Calculates the population standard deviation of numeric values.
-
-#### Example:
-To calculate the population standard deviation of salaries in a department:
-```javascript
-db.employees.aggregate([
-  { $group: { _id: "$department", stdDevSalary: { $stdDevPop: "$salary" } } }
-])
-```
-
----
-
-### 11. **$stdDevSamp**
-- Calculates the sample standard deviation of numeric values.
-
-#### Example:
-To calculate the sample standard deviation of salaries:
-```javascript
-db.employees.aggregate([
-  { $group: { _id: "$department", sampleStdDevSalary: { $stdDevSamp: "$salary" } } }
-])
-```
-
----
-
-### 12. **$concat**
-- Concatenates strings together.
-
-#### Example:
-To concatenate first and last names of employees:
-```javascript
-db.employees.aggregate([
-  { $project: { fullName: { $concat: [ "$firstName", " ", "$lastName" ] } } }
-])
-```
-
----
-
-### 13. **$avg**
-- Calculates the average of numeric values.
-
-#### Example:
-To calculate the average rating of each product:
-```javascript
-db.reviews.aggregate([
-  { $group: { _id: "$productId", avgRating: { $avg: "$rating" } } }
-])
-```
-
----
-
-### 14. **$arrayElemAt**
-- Accesses an element from an array based on its index.
-
-#### Example:
-To get the first element in an array:
-```javascript
-db.collection.aggregate([
-  { $project: { firstElement: { $arrayElemAt: ["$arrayField", 0] } } }
-])
-```
-
----
-
-### Example of an Aggregation Pipeline:
-
-This example calculates the total sales and the average price of products by category:
 ```javascript
 db.sales.aggregate([
-  { $group: { 
-      _id: "$category", 
-      totalSales: { $sum: "$salesAmount" }, 
-      avgPrice: { $avg: "$price" } 
-  } }
-])
+  {
+    $bucketAuto: {
+      groupBy: "$price",
+      buckets: 3,  // Number of buckets
+      output: { "count": { $sum: 1 }, "totalSales": { $sum: "$amount" } }
+    }
+  }
+]);
+```
+
+#### 13. **$out**
+Writes the result of the aggregation pipeline into a new collection.
+
+```javascript
+db.orders.aggregate([
+  { $match: { status: "shipped" } },
+  { $out: "shippedOrders" }
+]);
+```
+
+#### 14. **$merge**
+Merges the aggregation result into an existing collection. If the collection does not exist, it creates it.
+
+```javascript
+db.orders.aggregate([
+  { $match: { status: "shipped" } },
+  {
+    $merge: {
+      into: "shippedOrders",  // The target collection
+      whenMatched: "merge",   // What to do when there’s a match
+      whenNotMatched: "insert"  // What to do when there’s no match
+    }
+  }
+]);
 ```
 
 ---
+
+### Arithmetic Operators
+
+#### 15. **$sum**
+Returns the sum of numerical values. Often used with `$group`.
+
+```javascript
+db.sales.aggregate([
+  { $group: { _id: "$category", totalSales: { $sum: "$amount" } } }
+]);
+```
+
+#### 16. **$avg**
+Calculates the average value of numeric fields.
+
+```javascript
+db.sales.aggregate([
+  { $group: { _id: "$category", avgPrice: { $avg: "$price" } } }
+]);
+```
+
+#### 17. **$min** and **$max**
+Returns the minimum or maximum value in a group of documents.
+
+```javascript
+db.sales.aggregate([
+  { $group: { _id: "$category", lowestPrice: { $min: "$price" } } }
+]);
+```
+
+#### 18. **$multiply**
+Multiplies values together.
+
+```javascript
+db.orders.aggregate([
+  { $project: { totalCost: { $multiply: ["$price", "$quantity"] } } }
+]);
+```
+
+#### 19. **$divide**
+Divides one value by another.
+
+```javascript
+db.orders.aggregate([
+  { $project: { unitPrice: { $divide: ["$total", "$quantity"] } } }
+]);
+```
+
+---
+
+### String Operators
+
+#### 20. **$concat**
+Concatenates strings.
+
+```javascript
+db.users.aggregate([
+  { $project: { fullName: { $concat: ["$firstName", " ", "$lastName"] } } }
+]);
+```
+
+#### 21. **$substr**
+Extracts a substring from a string.
+
+```javascript
+db.users.aggregate([
+  { $project: { username: { $substr: ["$email", 0, 5] } } }  // First 5 chars of email
+]);
+```
+
+---
+
+### Array Operators
+
+#### 22. **$size**
+Returns the size of an array.
+
+```javascript
+db.orders.aggregate([
+  { $project: { itemCount: { $size: "$items" } } }
+]);
+```
+
+#### 23. **$filter**
+Filters array elements based on a condition.
+
+```javascript
+db.orders.aggregate([
+  {
+    $project: {
+      expensiveItems: {
+        $filter: {
+          input: "$items",
+          as: "item",
+          cond: { $gt: ["$$item.price", 100] }
+        }
+      }
+    }
+  }
+]);
+```
+
+---
+
+### Logical Operators
+
+#### 24. **$and**, **$or**, **$not**
+Logical operators for combining conditions.
+
+```javascript
+db.orders.aggregate([
+  {
+    $match: {
+      $and: [
+        { status: "shipped" },
+        { amount: { $gt: 100 } }
+      ]
+    }
+  }
+]);
+```
+
+---
+
+### Example Aggregation Pipeline
+
+Here is a full example of a MongoDB aggregation pipeline that uses multiple stages:
+
+```javascript
+db.orders.aggregate([
+  { $match: { status: "shipped" } },                   // Stage 1: Match shipped orders
+  { $group: { _id: "$customerId", total: { $sum: "$amount" } } },  // Stage 2: Group by customer and sum amounts
+  { $sort: { total: -1 } },                            // Stage 3: Sort by total in descending order
+  { $limit: 5 },                                      // Stage 4: Limit to top 5 customers
+  {
+    $lookup: {                                         // Stage 5: Lookup customer details
+      from: "customers",
+      localField: "_id",
+      foreignField: "_id",
+      as: "customerDetails"
+    }
+  },
+  { $project: { total: 1, customerDetails: 1 } }       // Stage 6: Project required fields
+]);
+```
+
+This pipeline:
+1. Filters orders by the `shipped` status.
+2. Groups them by `customerId` and sums up the total order amount.
+3. Sorts the results by total in descending order.
+4. Limits the output to the top 5 customers.
+5. Performs a join (using `$lookup`) to get customer details from the `customers` collection.
+6. Projects the output to include the total and customer details.
 
 ### Conclusion
 
-MongoDB's **aggregation framework** is powerful and provides various stages (`$match`, `$group`, `$project`, `$sort`, etc.) along with the aggregate functions to enable complex data transformation, summarization, and calculation in a very flexible way.
-
+MongoDB's aggregation framework provides extensive capabilities for data transformation, computation, and analysis. It allows you to run complex queries on large datasets efficiently using these operators and stages.
 
 ## Joins in MongoDB
 
